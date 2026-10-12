@@ -1,0 +1,131 @@
+{
+  "quality": {
+    "overall_score": 97.75,
+    "grade": "EXCELLENT",
+    "weights": {
+      "structure": 0.3,
+      "citations": 0.3,
+      "depth": 0.25,
+      "readability": 0.15
+    },
+    "structure": {
+      "score": 100.0,
+      "found_sections": [
+        "executive_summary",
+        "introduction",
+        "findings",
+        "analysis",
+        "limitations",
+        "conclusion"
+      ],
+      "missing_sections": []
+    },
+    "citations": {
+      "score": 100.0,
+      "total_citations": 24,
+      "unique_citations": 5,
+      "citation_frequency": {
+        "D3": 10,
+        "D5": 5,
+        "D1": 2,
+        "D4": 2,
+        "D2": 5
+      }
+    },
+    "depth": {
+      "score": 100,
+      "word_count": 1594
+    },
+    "readability": {
+      "score": 85,
+      "average_sentence_length": 17.29
+    },
+    "recommendations": []
+  },
+  "contradictions": {
+    "total_evidence": 0,
+    "checked_pairs": 0,
+    "contradictions_found": 0,
+    "contradictions": []
+  },
+  "credibility": {
+    "total_sources": 0,
+    "average_score": 0,
+    "high": 0,
+    "moderate": 0,
+    "low": 0,
+    "ranked_sources": []
+  },
+  "research_gaps": {
+    "total_explicit_gaps": 8,
+    "explicit_gaps": [
+      {
+        "category": "methodological_limitation",
+        "evidence": "Role of Retrieval Quality and Quantity The effectiveness of RAG is highly dependent on the quality and relevance of the retrieved documents.",
+        "method": "keyword_pattern"
+      },
+      {
+        "category": "methodological_limitation",
+        "evidence": "Research Limitations While the provided research analysis highlights the significant improvements RAG offers in factual accuracy, it also implicitly points to certain limitations or areas requiring careful consideration: * **Dependency on Retrieval Quality:** The effectiveness of RAG is highly contingent on the quality and relevance of the retrieved documents [D5].",
+        "method": "keyword_pattern"
+      },
+      {
+        "category": "insufficient_evidence",
+        "evidence": "The provided evidence does not detail specific failure modes of the retriever or strategies to mitigate them beyond adjusting the number of retrieved documents.",
+        "method": "keyword_pattern"
+      },
+      {
+        "category": "future_research",
+        "evidence": "The provided evidence does not detail specific failure modes of the retriever or strategies to mitigate them beyond adjusting the number of retrieved documents.",
+        "method": "keyword_pattern"
+      },
+      {
+        "category": "methodological_limitation",
+        "evidence": "Determining this optimal quantity is task-dependent and requires careful tuning.",
+        "method": "keyword_pattern"
+      },
+      {
+        "category": "insufficient_evidence",
+        "evidence": "It does not extensively cover potential challenges in implementing RAG, such as the computational cost of maintaining and querying large knowledge bases, the complexity of fine-tuning the retriever and generator components, or the handling of conflicting information within retrieved documents.",
+        "method": "keyword_pattern"
+      },
+      {
+        "category": "future_research",
+        "evidence": "It does not extensively cover potential challenges in implementing RAG, such as the computational cost of maintaining and querying large knowledge bases, the complexity of fine-tuning the retriever and generator components, or the handling of conflicting information within retrieved documents.",
+        "method": "keyword_pattern"
+      },
+      {
+        "category": "unanswered_question",
+        "evidence": "The analysis also does not delve into scenarios where RAG might still struggle with factual accuracy despite its design.",
+        "method": "keyword_pattern"
+      }
+    ],
+    "missing_sections": [],
+    "citation_analysis": {
+      "has_citations": true,
+      "total_citations": 24,
+      "unique_citations": 5,
+      "missing_citations": false
+    },
+    "research_questions": [
+      "How can future studies overcome: Role of Retrieval Quality and Quantity The effectiveness of RAG is highly dependent on the quality and relevance of the retrieved documents?",
+      "How can future studies overcome: Research Limitations While the provided research analysis highlights the significant improvements RAG offers in factual accuracy, it also implicitly points to certain limitations or areas requiring careful consideration: * **Dependency on Retrieval Quality:** The effectiveness of RAG is highly contingent on the quality and relevance of the retrieved documents [D5]?",
+      "What additional evidence is needed to address: The provided evidence does not detail specific failure modes of the retriever or strategies to mitigate them beyond adjusting the number of retrieved documents?",
+      "How should researchers investigate: The provided evidence does not detail specific failure modes of the retriever or strategies to mitigate them beyond adjusting the number of retrieved documents?",
+      "How can future studies overcome: Determining this optimal quantity is task-dependent and requires careful tuning?",
+      "What additional evidence is needed to address: It does not extensively cover potential challenges in implementing RAG, such as the computational cost of maintaining and querying large knowledge bases, the complexity of fine-tuning the retriever and generator components, or the handling of conflicting information within retrieved documents?",
+      "How should researchers investigate: It does not extensively cover potential challenges in implementing RAG, such as the computational cost of maintaining and querying large knowledge bases, the complexity of fine-tuning the retriever and generator components, or the handling of conflicting information within retrieved documents?",
+      "What research could resolve the uncertainty in: The analysis also does not delve into scenarios where RAG might still struggle with factual accuracy despite its design?"
+    ],
+    "recommendations": [
+      "Investigate the explicitly identified research gaps."
+    ],
+    "method": "rule_based_gap_analysis"
+  },
+  "comparison": null,
+  "warnings": [
+    "No source metadata provided for credibility analysis.",
+    "Research gaps identified for further investigation."
+  ],
+  "evaluation_method": "offline_heuristic_pipeline"
+}

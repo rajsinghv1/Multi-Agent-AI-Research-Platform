@@ -1,0 +1,17 @@
+google-genai
+python-dotenv
+pydantic
+pydantic-settings
+langchain
+langgraph
+langchain-google-genai
+faiss-cpu
+fastapi
+uvicorn
+streamlit
+requests
+arxiv
+wikipedia
+pypdf
+reportlab
+pytest
