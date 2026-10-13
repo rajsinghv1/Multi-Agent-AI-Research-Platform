@@ -150,37 +150,25 @@ Open the local URL printed in your terminal (commonly `http://localhost:8501`).
 
 Use **Research Evaluation** to assess a report, or **Compare Reports** to compare saved outputs. These are decision-support heuristics, not a substitute for independent fact-checking or peer review.
 
-## Screenshots
+## Application Screenshots
 
-> **Screenshots are placeholders until real images are captured and added to `docs/screenshots/`.** Do not publish broken image links. After adding the images, remove the HTML comment markers below.
-
-<!--
 ### 1. Research Intelligence Dashboard
-![Dashboard](docs/screenshots/dashboard.png)
+![Research Intelligence Dashboard](docs/screenshots/dashboard.png)
 
 ### 2. New AI Research
-![AI Research](docs/screenshots/ai-research.png)
+![New AI Research](docs/screenshots/ai-research.png)
 
 ### 3. AI-Generated Research Report
-![Generated Report](docs/screenshots/generated-report.png)
+![Generated Research Report](docs/screenshots/generated-report.png)
 
 ### 4. Multi-Document PDF Research
-![PDF Research](docs/screenshots/pdf-research.png)
+![PDF Upload and Indexing](docs/screenshots/pdf-research.png)
 
 ### 5. PDF + Web Hybrid Research
-![Hybrid Research](docs/screenshots/hybrid-research.png)
+![PDF and Web Hybrid Research](docs/screenshots/hybrid-research.png)
 
 ### 6. Multi-Report Comparison
-![Compare Reports](docs/screenshots/compare-reports.png)
--->
-
-To add screenshots:
-
-```powershell
-New-Item -ItemType Directory -Force docs\screenshots
-```
-
-Save screenshots using the filenames above, then uncomment the Markdown image links.
+![Compare Research Reports](docs/screenshots/compare-reports.png)
 
 ## Automated Tests
 
