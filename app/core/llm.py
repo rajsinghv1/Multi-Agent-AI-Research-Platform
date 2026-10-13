@@ -8,47 +8,56 @@ from google.genai import errors, types
 from app.core.config import settings
 
 
-client = genai.Client(
-    api_key=settings.GOOGLE_API_KEY
-)
+client = genai.Client(api_key=settings.GOOGLE_API_KEY)
 
 
 class GeminiQuotaExceeded(RuntimeError):
-    """Raised when Gemini's daily request quota is exhausted."""
+    """Raised when Gemini quota is exhausted."""
+
+
+class GeminiUnavailable(RuntimeError):
+    """Raised when Gemini remains unavailable after retries."""
 
 
 def is_daily_quota_exceeded(error):
-    """
-    Detect Gemini daily free-tier request quota errors.
-    """
     message = str(error).lower()
 
-    return (
-        "generaterequestsperday" in message
-        or "generate_content_free_tier_requests" in message
-        or "requestsperdayperprojectpermodel" in message
+    daily_markers = (
+        "generaterequestsperday",
+        "generate_content_free_tier_requests",
+        "requestsperdayperprojectpermodel",
+        "per_day",
+        "per day",
+        "daily quota",
     )
+
+    return any(marker in message for marker in daily_markers)
 
 
 def get_retry_delay(error):
-    """
-    Extract Google's suggested retry delay in seconds.
-    """
+    """Extract suggested retry delay from Gemini error text."""
     message = str(error)
 
-    match = re.search(
-        r"['\"]retryDelay['\"]:\s*['\"](\d+)s['\"]",
-        message,
+    patterns = (
+        r"retryDelay['\"]?\s*:\s*['\"]?(\d+(?:\.\d+)?)s",
+        r"retry in (\d+(?:\.\d+)?)s",
+        r"retry after (\d+(?:\.\d+)?) seconds",
     )
 
-    if match:
-        return int(match.group(1))
+    for pattern in patterns:
+        match = re.search(pattern, message, re.IGNORECASE)
+
+        if match:
+            return float(match.group(1))
 
     return None
 
 
 def generate_response(prompt: str) -> str:
-    max_attempts = 5
+    if not prompt or not prompt.strip():
+        raise ValueError("Prompt cannot be empty.")
+
+    max_attempts = 4
     base_delay = 2
     max_delay = 30
 
@@ -59,68 +68,69 @@ def generate_response(prompt: str) -> str:
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     temperature=settings.GEMINI_TEMPERATURE
-                )
+                ),
             )
 
-            if not response.text:
-                raise RuntimeError(
+            answer = response.text
+
+            if not answer or not answer.strip():
+                raise GeminiUnavailable(
                     "Gemini returned an empty response."
                 )
 
-            return response.text
+            return answer.strip()
 
         except errors.APIError as exc:
             status = getattr(exc, "code", None)
 
-            # Stop immediately on daily quota exhaustion.
             if status == 429 and is_daily_quota_exceeded(exc):
-                retry_delay = get_retry_delay(exc)
-
-                print("\n[GEMINI DAILY QUOTA EXHAUSTED]")
-                print(f"Model: {settings.GEMINI_MODEL}")
-
-                if retry_delay is not None:
-                    print(
-                        "Suggested retry delay: "
-                        f"{retry_delay / 3600:.2f} hours"
-                    )
-
-                print(
-                    "Stopping retries to avoid "
-                    "unnecessary API requests."
-                )
+                print("[GEMINI] Daily quota exhausted.")
 
                 raise GeminiQuotaExceeded(
-                    "Gemini daily free-tier quota exhausted. "
-                    "Wait until Google resets the quota."
+                    "Gemini daily quota exhausted. "
+                    "Check Google AI Studio usage and retry "
+                    "when your quota becomes available."
                 ) from exc
 
-            # Retry temporary errors, including short-term
-            # rate limits, but not daily quota exhaustion.
-            retryable = status in (
-                429, 500, 502, 503, 504
-            )
+            retryable = status in (429, 500, 502, 503, 504)
 
             if not retryable:
-                raise
-
-            if attempt == max_attempts:
-                raise RuntimeError(
-                    f"Gemini API unavailable after "
-                    f"{max_attempts} attempts. "
-                    f"Last error: {exc}"
+                raise GeminiUnavailable(
+                    f"Gemini request failed (HTTP {status})."
                 ) from exc
 
-            delay = min(
+            if attempt == max_attempts:
+                raise GeminiUnavailable(
+                    "Gemini quota/rate limit reached or service "
+                    "temporarily unavailable. "
+                    "Please try again later."
+                ) from exc
+
+            suggested_delay = get_retry_delay(exc)
+
+            exponential_delay = min(
                 base_delay * (2 ** (attempt - 1)),
-                max_delay
-            ) + random.uniform(0, 1)
+                max_delay,
+            )
+
+            delay = (
+                suggested_delay
+                if suggested_delay is not None
+                else exponential_delay + random.uniform(0, 1)
+            )
+
+            # Avoid waiting indefinitely in a Streamlit request.
+            if delay > 60:
+                raise GeminiUnavailable(
+                    f"Gemini requested a retry after {delay:.0f} "
+                    "seconds. Please try again later."
+                ) from exc
 
             print(
-                f"[GEMINI RETRY] Attempt "
-                f"{attempt}/{max_attempts} failed "
-                f"(HTTP {status}). "
-                f"Retrying in {delay:.1f} seconds..."
+                f"[GEMINI RETRY] Attempt {attempt}/{max_attempts}, "
+                f"HTTP {status}. Retrying in {delay:.1f}s..."
             )
 
             time.sleep(delay)
+
+    raise GeminiUnavailable("Gemini request failed.")
