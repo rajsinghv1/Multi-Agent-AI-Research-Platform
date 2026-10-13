@@ -155,20 +155,23 @@ Use **Research Evaluation** to assess a report, or **Compare Reports** to compar
 > **Screenshots are placeholders until real images are captured and added to `docs/screenshots/`.** Do not publish broken image links. After adding the images, remove the HTML comment markers below.
 
 <!--
-### Dashboard
+### 1. Research Intelligence Dashboard
 ![Dashboard](docs/screenshots/dashboard.png)
 
-### PDF Research and Hybrid Retrieval
+### 2. New AI Research
+![AI Research](docs/screenshots/ai-research.png)
+
+### 3. AI-Generated Research Report
+![Generated Report](docs/screenshots/generated-report.png)
+
+### 4. Multi-Document PDF Research
 ![PDF Research](docs/screenshots/pdf-research.png)
 
-### Generated Research Report
-![Research Report](docs/screenshots/research-report.png)
+### 5. PDF + Web Hybrid Research
+![Hybrid Research](docs/screenshots/hybrid-research.png)
 
-### Research Evaluation
-![Research Evaluation](docs/screenshots/research-evaluation.png)
-
-### Research History / Knowledge Graph
-![Research History](docs/screenshots/research-history.png)
+### 6. Multi-Report Comparison
+![Compare Reports](docs/screenshots/compare-reports.png)
 -->
 
 To add screenshots:
