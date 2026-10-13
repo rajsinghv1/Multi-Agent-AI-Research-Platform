@@ -230,13 +230,6 @@ These values are from **one observed run**, not benchmarks or guaranteed output.
 - Research evaluation and contradiction detection are heuristic and may miss errors.
 - Potential improvements: per-call embedding throttling/batching, citation-grounding evaluation, source reranking, end-to-end live tests, and richer report export.
 
-## Resume Description
-
-**Multi-Agent AI Research Platform | Python, LangGraph, Google Gemini, RAG, FAISS, Streamlit, SQLite**
-
-- Developed a LangGraph-based multi-agent research workflow integrating academic retrieval, multi-document PDF RAG, evidence fusion, and AI-generated reports.
-- Implemented persistent SQLite research memory, semantic retrieval, and entity–relationship knowledge graph extraction.
-- Added report evaluation, comparison, quota-aware error handling, and automated tests (**124 passed, 1 skipped** in the latest local run).
 
 ## Author
 
