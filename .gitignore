@@ -13,4 +13,4 @@ data/
 *.faiss
 *.sqlite
 *.db
-"@ | Set-Content .gitignore
+"@ | Set-Content .gitignoreapp_phase9_backup.py
