@@ -14,3 +14,4 @@ data/
 *.sqlite
 *.db
 "@ | Set-Content .gitignoreapp_phase9_backup.py
+app_phase9_backup.py
