@@ -1,47 +1,98 @@
 # Multi-Agent AI Research Platform
 
-A local-first, multi-agent research assistant built with **Python, LangGraph, Google Gemini, Streamlit, FAISS and SQLite**. It combines academic search with PDF retrieval-augmented generation (RAG), produces citation-aware research reports, and stores research history and extracted knowledge relationships.
+**An agentic research assistant built with Python, LangGraph, Google Gemini, retrieval-augmented generation (RAG), FAISS, SQLite, and Streamlit.**
 
-> **Project status:** Core PDF-only and hybrid research pipelines have been exercised locally. Streamlit end-to-end testing, report quality, and deployment readiness should be verified before describing this as production-ready. Google Gemini API quotas apply.
+The platform brings together academic research retrieval and evidence from uploaded PDFs, then generates research reports with source references. It also maintains research history, retrieves related past work, extracts a knowledge graph, and provides tools to evaluate and compare reports.
+
+> **Project status:** Local end-to-end hybrid research execution has been demonstrated. Latest reported automated test run: **124 passed, 1 skipped, 0 failed** (Python 3.12.3; 23.31 seconds). The live Gemini connection test was skipped to conserve API quota. These results do not establish that every generated citation is factually correct.
 
 ## Features
 
-- LangGraph research workflow: planning, retrieval, evidence fusion, analysis, report generation
-- Academic search using arXiv, Wikipedia and Crossref
-- Multi-PDF text extraction, chunking, Gemini embeddings and FAISS similarity search
-- PDF-only or combined academic-web + PDF evidence retrieval
-- Citation-aware report generation and citation validation
-- SQLite research history, semantic memory and knowledge graph extraction
-- Streamlit dashboard for research, history, evaluation and export
+- **Multi-agent orchestration:** LangGraph workflows for planning, research collection, evidence fusion, analysis, report generation, and memory updates.
+- **Academic research:** Retrieves candidates from arXiv, Wikipedia, and Crossref, with deduplication, relevance filtering, caching, and quality metrics.
+- **Multi-document PDF RAG:** Extracts PDF text, creates overlapping chunks, embeds passages with Google Gemini, and indexes normalized vectors in FAISS.
+- **Hybrid evidence:** Combines retrieved PDF passages with academic/web research in one report-generation workflow.
+- **Persistent research memory:** Stores reports and history in SQLite, with semantic retrieval of related research.
+- **Knowledge graph:** Extracts entities and relationships from research outputs.
+- **Research evaluation:** Report quality analysis, source credibility checks, research gap identification, contradiction heuristics, and report comparison.
+- **Streamlit interface:** Dashboard, New AI Research, PDF Research, Research History, Research Evaluation, Compare Reports, and Export Reports.
+- **Quota-aware operation:** Gemini response retry logic and embedding retry handling. Free-tier rate limits still apply.
 
 ## Architecture
 
 ```text
-Streamlit UI (app.py)
-        |
-        v
-LangGraph memory_graph
-        |
-        +-- Retrieve prior research memory
-        +-- Hybrid research graph
-        |      +-- Planning agent (Gemini)
-        |      +-- Academic search (arXiv/Wikipedia/Crossref)
-        |      +-- PDF retrieval (Gemini embeddings + FAISS)
-        |      +-- Evidence fusion
-        |      +-- Analysis agent (Gemini)
-        |      +-- Report agent (Gemini)
-        +-- Save report to SQLite
-        +-- Extract knowledge graph entities/relations
+                           Streamlit UI (app.py)
+                                   |
+                      LangGraph Research Workflows
+                                   |
+              +--------------------+--------------------+
+              |                    |                    |
+        Memory Retrieval     Planning / Research     PDF RAG Retrieval
+              |                    |                    |
+        SQLite / Semantic    arXiv / Wikipedia       PDF -> Chunks
+             Memory             / Crossref                 |
+              |                    |                Gemini Embeddings
+              |                    |                       |
+              |                    |                     FAISS
+              +--------------------+--------------------+
+                                   |
+                             Evidence Fusion
+                                   |
+                            Analysis / Report
+                                   |
+                    Save History + Knowledge Graph
+                                   |
+                       Evaluation / Comparison / Export
 ```
 
-## Prerequisites
+**Typical hybrid research flow:** User question → related research memory → planning → academic retrieval + PDF retrieval → evidence fusion → Gemini-based analysis and report → SQLite save → knowledge graph extraction.
 
-- Windows PowerShell, macOS or Linux terminal
-- Python compatible with project dependencies (tested locally by developer with Python 3.12)
-- Google Gemini API key and available quota
-- Internet for Gemini calls and academic research APIs
+## Technology Stack
 
-## Installation (Windows PowerShell)
+| Layer | Technologies |
+| --- | --- |
+| Language | Python 3.12 |
+| User interface | Streamlit |
+| Agent orchestration | LangGraph |
+| LLM and embeddings | Google Gemini API |
+| Document retrieval | PDF text extraction, chunking, FAISS, NumPy |
+| Academic sources | arXiv, Wikipedia, Crossref |
+| Persistence | SQLite, FAISS index, local metadata |
+| Testing | pytest |
+| Local development | VS Code, Windows PowerShell |
+
+**LLM provider:** Google Gemini only. No NVIDIA API is required. **Docker is not required.**
+
+## Project Layout
+
+```text
+Multi-Agent-AI-Research-Platform/
+├── app.py                        # Streamlit interface
+├── app/
+│   ├── core/                     # Gemini client and retry handling
+│   ├── rag/                      # PDF loading, chunking, embeddings, FAISS
+│   ├── services/                 # Research retrieval and hybrid fusion
+│   └── workflows/                # LangGraph orchestration
+├── tests/                        # Automated tests
+├── data/                         # Local runtime data (do not commit)
+├── .env.example                  # Configuration template
+├── .gitignore
+├── pytest.ini
+├── requirements.txt
+└── README.md
+```
+
+> This is a high-level layout; see the repository for the exact module names.
+
+## Requirements
+
+- Python 3.12 recommended (latest verified test environment)
+- VS Code or another Python IDE
+- Google Gemini API key with available quota
+- Internet connection for Gemini and academic research APIs
+- Windows PowerShell commands below; adapt activation syntax on macOS/Linux
+
+## Local Installation (Windows PowerShell)
 
 ```powershell
 git clone https://github.com/rajsinghv1/Multi-Agent-AI-Research-Platform.git
@@ -49,89 +100,154 @@ cd Multi-Agent-AI-Research-Platform
 py -3.12 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
-If PowerShell blocks activation, run `Set-ExecutionPolicy -Scope Process Bypass` and retry activation.
+If PowerShell blocks virtual environment activation, use the interpreter directly instead:
 
-## Configuration
-
-Create a `.env` file in the project root. Check `app/core/config.py` for the exact required setting names and supported defaults. The project uses `GOOGLE_API_KEY`, `GEMINI_MODEL`, and `GEMINI_TEMPERATURE` in its Gemini client configuration.
-
-Example (adjust model name to one supported by your account):
-
-```dotenv
-GOOGLE_API_KEY=YOUR_GEMINI_API_KEY
-GEMINI_MODEL=gemini-2.5-flash
-GEMINI_TEMPERATURE=0.3
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-Never commit `.env`, API keys, uploaded PDFs or local vector databases. The free-tier request quota varies by model/project; a single multi-agent research run can make several generation calls.
+## Environment Configuration
 
-## Run locally
+Copy the template:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Open `.env.example` and copy its **actual variable names** into `.env`, then set your Google Gemini API key. A common configuration uses `GOOGLE_API_KEY`, but **use the name expected by this repository's configuration code**; do not assume that an example name is wired up.
+
+Never commit `.env`, API keys, credentials, uploaded PDFs, SQLite databases, or FAISS vector indexes. Check `.gitignore` before publishing.
+
+## Run the Application
 
 ```powershell
 python -m streamlit run app.py
 ```
 
-Open http://localhost:8501. Upload and index PDFs on the PDF Research page before asking PDF-grounded questions. For hybrid research, enable both web and document sources.
+Open the local URL printed in your terminal (commonly `http://localhost:8501`).
 
-## Offline tests (no Gemini requests)
+### Example workflows
+
+**Academic research**
+
+1. Open **New AI Research**.
+2. Enter a research question, for example: *What are the key approaches to reducing hallucinations in retrieval-augmented generation?*
+3. Run research and inspect retrieved sources, report, and warnings.
+4. Find the saved result under **Research History**.
+
+**PDF + Web Hybrid Research**
+
+1. Open **PDF Research** and upload a PDF containing selectable text.
+2. Index the PDF and wait for completion. Large documents may hit Gemini embedding rate limits.
+3. Enter a question such as: *Compare the uploaded paper's findings with relevant academic literature. Identify agreements, contradictions, limitations, and research gaps. Cite the evidence used.*
+4. Enable academic/web research if desired, then run the hybrid workflow.
+5. Inspect the report, PDF evidence, source references, and any retrieval warnings. Verify page numbers and citations against original documents.
+
+**Evaluation and comparison**
+
+Use **Research Evaluation** to assess a report, or **Compare Reports** to compare saved outputs. These are decision-support heuristics, not a substitute for independent fact-checking or peer review.
+
+## Screenshots
+
+> **Screenshots are placeholders until real images are captured and added to `docs/screenshots/`.** Do not publish broken image links. After adding the images, remove the HTML comment markers below.
+
+<!--
+### Dashboard
+![Dashboard](docs/screenshots/dashboard.png)
+
+### PDF Research and Hybrid Retrieval
+![PDF Research](docs/screenshots/pdf-research.png)
+
+### Generated Research Report
+![Research Report](docs/screenshots/research-report.png)
+
+### Research Evaluation
+![Research Evaluation](docs/screenshots/research-evaluation.png)
+
+### Research History / Knowledge Graph
+![Research History](docs/screenshots/research-history.png)
+-->
+
+To add screenshots:
 
 ```powershell
-pip install pytest
-python -m pytest tests/test_phase10_offline.py -v
+New-Item -ItemType Directory -Force docs\screenshots
 ```
 
-For the full existing test suite:
+Save screenshots using the filenames above, then uncomment the Markdown image links.
+
+## Automated Tests
+
+Run all local tests:
 
 ```powershell
-python -m pytest tests -q
+python -m pytest tests -v
 ```
 
-The new offline tests mock external calls. They verify orchestration and interfaces, **not** factual correctness of generated reports. Run a separate manual end-to-end test when API quota is available.
-
-## Manual smoke test
-
-1. Start Streamlit and confirm the dashboard loads.
-2. Upload a text-based PDF and index it.
-3. Ask a PDF-only question; verify retrieved passages and page references.
-4. Enable PDF + Web research; verify both source types are represented.
-5. Check research history, citation validation and exports.
-6. Confirm Gemini quota errors show a helpful message rather than crashing the entire interface.
-
-## Project structure
+**Most recent user-reported result:**
 
 ```text
-app.py                         # Streamlit interface
-app/core/                     # Gemini client and settings
-app/workflows/                # LangGraph workflows
-app/tools/                    # Academic research tools
-app/services/                 # Evidence fusion and citations
-app/rag/                      # PDF loader, embeddings, FAISS store
-app/memory/                   # SQLite and knowledge graph
-app/evaluation/               # Research quality evaluation
-tests/                        # Automated tests
-data/                         # Local files (gitignored)
+collected 125 items
+124 passed, 1 skipped in 23.31s
 ```
+
+The skipped test checks a live Gemini connection and was disabled to avoid consuming API quota. Other tests exercise quota behavior, retrieval utilities, PDF/FAISS functionality, evidence fusion, memory, knowledge graph, report evaluation, and comparison. Mocked/offline tests do not guarantee that external APIs are available or that every generated report is accurate.
+
+## Example Observed Hybrid Run
+
+A completed local workflow reported:
+
+```text
+Academic sources retained: 3
+PDF passages retrieved: 5
+Related research memories: 3
+Saved research ID: 8
+Knowledge graph entities extracted: 26
+Knowledge graph relationships extracted: 24
+```
+
+These values are from **one observed run**, not benchmarks or guaranteed output. The same run reported low average academic-source relevance (0.1161), so retrieval ranking remains an improvement area.
 
 ## Troubleshooting
 
-- **429 RESOURCE_EXHAUSTED:** Check the model's quota in Google AI Studio. Wait for reset or use a model with available quota; repeated retries will not restore a daily allowance.
-- **No PDF passages:** Confirm PDF indexing succeeded, the document contains extractable text, and the same FAISS store is used for retrieval.
-- **arXiv HTTP 500:** Retry later and keep API search queries limited to the original question; do not append prior report excerpts.
-- **Missing module:** Activate the virtual environment and install `requirements.txt`.
-- **FAISS index mismatch:** Verify metadata and index integrity; back up local data before rebuilding.
+| Issue | What to try |
+| --- | --- |
+| Gemini HTTP 429 `RESOURCE_EXHAUSTED` | Respect the `retryDelay`, reduce request frequency, retry later, and review free-tier limits. |
+| Embedding requests exceed per-minute quota | Index smaller batches or one PDF at a time; ensure retry/throttling is applied to individual embedding calls. |
+| `ModuleNotFoundError` | Activate the correct `.venv` and reinstall `requirements.txt`. |
+| No PDF passages retrieved | Confirm indexing finished, text is extractable, and the PDF store matches the retrieval workflow. |
+| FAISS dimension mismatch | Keep the embedding model and vector dimensions consistent with the existing index; rebuild only when intentionally migrating models. |
+| Academic sources irrelevant | Refine the question and review source filtering/relevance thresholds. |
+| Streamlit form button remains disabled | Avoid depending on checkbox state changes within the same form to enable its submit button. |
 
-## Security and privacy
+## Security and Responsible Use
 
-PDF uploads and research history are stored locally. Avoid uploading confidential documents to external AI services without authorization. Gemini embeddings and report generation send relevant text to Google APIs. Treat retrieved web/PDF content as untrusted input and validate generated citations before relying on them.
+- Keep credentials in local environment variables or `.env`; never publish real keys.
+- Do not commit private PDFs, cached document text, local databases, or vector stores without explicit authorization.
+- Treat retrieved web pages and PDF text as untrusted input; review model outputs before sharing.
+- Verify research claims, citation URLs, and PDF page references against originals.
+- Respect academic content licenses and third-party API terms.
 
-## Deployment notes
+## Known Limitations / Future Improvements
 
-This project is designed for local execution. For deployment, use an appropriate secret manager for the Gemini key, configure persistent storage for SQLite/FAISS, set upload limits, add authentication for multi-user access, and review data retention. Do not deploy as a public multi-user service without those controls.
+- Free-tier Gemini quotas can interrupt large-scale indexing or report generation.
+- Academic source relevance and citation grounding require further validation.
+- Scanned/image-only PDFs may require OCR support not covered by text-only extraction.
+- Research evaluation and contradiction detection are heuristic and may miss errors.
+- Potential improvements: per-call embedding throttling/batching, citation-grounding evaluation, source reranking, end-to-end live tests, and richer report export.
 
+## Resume Description
 
-## License
+**Multi-Agent AI Research Platform | Python, LangGraph, Google Gemini, RAG, FAISS, Streamlit, SQLite**
 
-Add a `LICENSE` file before stating that the repository is open-source under a specific license.
+- Developed a LangGraph-based multi-agent research workflow integrating academic retrieval, multi-document PDF RAG, evidence fusion, and AI-generated reports.
+- Implemented persistent SQLite research memory, semantic retrieval, and entity–relationship knowledge graph extraction.
+- Added report evaluation, comparison, quota-aware error handling, and automated tests (**124 passed, 1 skipped** in the latest local run).
+
+## Author
+
+**Raj Singh** — [GitHub](https://github.com/rajsinghv1)
+
